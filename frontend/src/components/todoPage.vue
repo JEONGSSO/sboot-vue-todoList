@@ -14,7 +14,7 @@
           v-for="(todo, index) in todos" :key="index">
         {{todo.name}}
         <button class="btn btn-danger btn-sm fr"
-          @click="delTodo(index)"> X </button>
+          @click="delTodo(todo)"> X </button>
       </li>
     </ul>
   </div>
@@ -23,6 +23,7 @@
 <script>
 
 const TODOS_LS = 'loadedTodos'
+const gURL = 'https://todos.garam.xyz/api/todos'
 
 export default {
   name: 'todoPage',
@@ -33,29 +34,54 @@ export default {
     }
   },
   methods: {
-    delTodo (i) {
-      this.todos.splice(i, 1)
-      saveTodo(this.todos)
+    delTodo (todo) {
+      const vm = this
+
+      this.todos.map((_todo, i, obj) => {
+        if (_todo.id === todo.id) {
+          vm.$http.delete(`${gURL}/${todo.id}`).then(result => {
+            if (result.status === 200) {
+              obj.splice(i, 1)
+            } else {
+              alert('Fail Remove')
+            }
+          })
+        }
+      })
+      // localSaveTodo(this.todos)
     },
     addTodo (name) {
       if (!isEmpty(name)) {
-        this.todos.push({name: name})
-        saveTodo(this.todos)
+        const vm = this
+
+        vm.$http.defaults.headers.post['Content-type'] = 'application/json'
+        vm.$http.post(gURL, { name: name }).then(result => {
+          vm.todos.push(result.data)
+        // localSaveTodo(this.todos)
+        })
       }
       this.name = null
     },
-    loadTodos () {
-      const getTodos = localStorage.getItem(TODOS_LS)
-      if (!isEmpty(getTodos)) {
-        const parsedTodos = JSON.parse(getTodos)
+    localLoadTodos () {
+      const localLoadTodo = localStorage.getItem(TODOS_LS)
+      if (!isEmpty(localLoadTodo)) {
+        const parsedTodos = JSON.parse(localLoadTodo)
         parsedTodos.forEach(todo => {
           this.todos.push({name: todo.name})
         })
       }
+    },
+    getTodos () {
+      const vm = this
+      vm.$http.get(gURL).then(result => {
+        // console.log(result.data.data)
+        vm.todos = result.data.data
+      })
     }
   },
   mounted () {
-    this.loadTodos()
+    // this.localLoadTodos()
+    this.getTodos()
   }
 }
 
@@ -67,9 +93,9 @@ function isEmpty (value) {
   }
 }
 
-function saveTodo (todo) {
-  localStorage.setItem(TODOS_LS, JSON.stringify(todo))
-}
+// function localSaveTodo (todo) {
+//   localStorage.setItem(TODOS_LS, JSON.stringify(todo))
+// }
 
 </script>
 
