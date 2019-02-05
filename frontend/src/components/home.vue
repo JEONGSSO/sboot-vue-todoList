@@ -9,8 +9,6 @@
     <router-link to='/'>
       <button class="btn btn-primary">Go to hello</button>
     </router-link>
-    <!-- <test></test> -->
-
     <div v-if="hasResult">
       <div v-for="post in posts" v-bind:key="post.id">
         <h1>{{post.title}}</h1>
@@ -18,14 +16,20 @@
       </div>
     </div>
     <button v-else @click="searchTerm()">불러오기</button>
+    <div id="test">
+      <ol>
+        <test
+          v-for="item in groceryList"
+          v-bind:todo="item"
+          v-bind:key="item.id">
+        </test>
+      </ol>
+    </div>
+
    </div>
 </template>
 
 <script>
-// 변수로 template 넣어서 재사용
-// let test = {
-//   template: '<button @click="this.visitCount() += 1"> {{visit}} 방문 횟수 </button>'
-// }
 
 export default {
   name: 'home',
@@ -34,7 +38,12 @@ export default {
       message: 'home!!',
       visit: 0,
       isVisible: false,
-      posts: []
+      posts: [],
+      groceryList: [
+        { id: 0, text: 'Vegetables' },
+        { id: 1, text: 'Cheese' },
+        { id: 2, text: 'Whatever else humans are supposed to eat' }
+      ]
     }
   },
   methods: {
@@ -62,7 +71,11 @@ export default {
     }
   },
   components: {
-    // 'test': test
+    'test': {
+      props: ['todo'],
+      template: '<li>{{ todo.text }}</li>'
+    }
   }
 }
+
 </script>

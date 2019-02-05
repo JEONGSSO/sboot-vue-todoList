@@ -12,7 +12,7 @@
     <ul class="list-group mt10">
       <li class="list-group-item"
           v-for="(todo, index) in todos" :key="index">
-        {{todo.name}}
+        {{todo.content}}
         <button class="btn btn-danger btn-sm fr"
           @click="delTodo(todo)"> X </button>
       </li>
@@ -22,8 +22,8 @@
 
 <script>
 
-const TODOS_LS = 'loadedTodos'
-const gURL = 'https://todos.garam.xyz/api/todos'
+// const TODOS_LS = 'loadedTodos'
+const gURL = 'http://localhost:8080'
 
 export default {
   name: 'todoPage',
@@ -50,32 +50,34 @@ export default {
       })
       // localSaveTodo(this.todos)
     },
-    addTodo (name) {
-      if (!isEmpty(name)) {
+    addTodo (content) {
+      if (!isEmpty(content)) {
         const vm = this
 
         vm.$http.defaults.headers.post['Content-type'] = 'application/json'
-        vm.$http.post(gURL, { name: name }).then(result => {
+        vm.$http.post(gURL, { content: content }).then(result => {
           vm.todos.push(result.data)
         // localSaveTodo(this.todos)
         })
       }
       this.name = null
     },
-    localLoadTodos () {
-      const localLoadTodo = localStorage.getItem(TODOS_LS)
-      if (!isEmpty(localLoadTodo)) {
-        const parsedTodos = JSON.parse(localLoadTodo)
-        parsedTodos.forEach(todo => {
-          this.todos.push({name: todo.name})
-        })
-      }
-    },
+    // localLoadTodos () {
+    //   const localLoadTodo = localStorage.getItem(TODOS_LS)
+    //   if (!isEmpty(localLoadTodo)) {
+    //     const parsedTodos = JSON.parse(localLoadTodo)
+    //     parsedTodos.forEach(todo => {
+    //       this.todos.push({name: todo.name})
+    //     })
+    //   }
+    // },
     getTodos () {
       const vm = this
-      vm.$http.get(gURL).then(result => {
-        // console.log(result.data.data)
-        vm.todos = result.data.data
+      // const testURL = 'https://todos.garam.xyz/api/todos'
+      // vm.$http.get(testURL).then(result => {
+      vm.$http.get(`${gURL}/list`).then(result => {
+        console.log(result)
+        vm.todos = result.data
       })
     }
   },
