@@ -34,12 +34,12 @@ export default {
     }
   },
   methods: {
-    delTodo (todo) {
+    delTodo (targetTodo) {
       const vm = this
-
       this.todos.map((_todo, i, obj) => {
-        if (_todo.id === todo.id) {
-          vm.$http.delete(`${gURL}/${todo.id}`).then(result => {
+        if (_todo.id === targetTodo.id) {
+          vm.$http.delete(`${gURL}/delete/${targetTodo.id}`).then(result => {
+            // console.log(result)
             if (result.status === 200) {
               obj.splice(i, 1)
             } else {
@@ -53,37 +53,28 @@ export default {
     addTodo (content) {
       if (!isEmpty(content)) {
         const vm = this
-
-        vm.$http.defaults.headers.post['Content-type'] = 'application/json'
-        vm.$http.post(gURL, { content: content }).then(result => {
-          vm.todos.push(result.data)
-        // localSaveTodo(this.todos)
+        // 서버에 요청시 415 Invalid mime type charset=UTF-8 추가 해결
+        vm.$http.defaults.headers.post['Content-type'] = 'application/json;charset=UTF-8'
+        vm.$http.post(`${gURL}/regist`, { content: content }).then(result => {
+          // vm.todos.push(content) 빈 상자가 나와서 getTodos를 임시 호출
+          this.getTodos()
+          // localSaveTodo(this.todos)
         })
       }
       this.name = null
     },
-    // localLoadTodos () {
-    //   const localLoadTodo = localStorage.getItem(TODOS_LS)
-    //   if (!isEmpty(localLoadTodo)) {
-    //     const parsedTodos = JSON.parse(localLoadTodo)
-    //     parsedTodos.forEach(todo => {
-    //       this.todos.push({name: todo.name})
-    //     })
-    //   }
-    // },
     getTodos () {
       const vm = this
       // const testURL = 'https://todos.garam.xyz/api/todos'
       // vm.$http.get(testURL).then(result => {
       vm.$http.get(`${gURL}/list`).then(result => {
-        console.log(result)
         vm.todos = result.data
       })
     }
   },
   mounted () {
-    // this.localLoadTodos()
     this.getTodos()
+    // this.localLoadTodos()
   }
 }
 
@@ -98,6 +89,16 @@ function isEmpty (value) {
 // function localSaveTodo (todo) {
 //   localStorage.setItem(TODOS_LS, JSON.stringify(todo))
 // }
+
+// localLoadTodos () {
+//   const localLoadTodo = localStorage.getItem(TODOS_LS)
+//   if (!isEmpty(localLoadTodo)) {
+//     const parsedTodos = JSON.parse(localLoadTodo)
+//     parsedTodos.forEach(todo => {
+//       this.todos.push({name: todo.name})
+//     })
+//   }
+// },
 
 </script>
 
