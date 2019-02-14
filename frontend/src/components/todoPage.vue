@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h2>Todo List</h2>
+    <!-- <h2>Todo List</h2> -->
     <div class="input-group">
       <input class="form-control" placeholder="Write a new Todo"
         @keyup.enter="addTodo(name)" v-model="name">
@@ -23,7 +23,7 @@
 <script>
 
 // const TODOS_LS = 'loadedTodos'
-const gURL = 'http://localhost:8080'
+const gTodoURL = 'http://localhost:8080/todo'
 
 export default {
   name: 'todoPage',
@@ -38,7 +38,7 @@ export default {
       const vm = this
       this.todos.map((_todo, i, obj) => {
         if (_todo.id === targetTodo.id) {
-          vm.$http.delete(`${gURL}/delete/${targetTodo.id}`).then(result => {
+          vm.$http.delete(`${gTodoURL}/delete/${targetTodo.id}`).then(result => {
             // console.log(result)
             if (result.status === 200) {
               obj.splice(i, 1)
@@ -55,7 +55,7 @@ export default {
         const vm = this
         // 서버에 요청시 415 Invalid mime type charset=UTF-8 추가 해결
         vm.$http.defaults.headers.post['Content-type'] = 'application/json;charset=UTF-8'
-        vm.$http.post(`${gURL}/regist`, { content: content }).then(result => {
+        vm.$http.post(`${gTodoURL}/regist`, { content: content }).then(result => {
           // vm.todos.push(content) 빈 상자가 나와서 getTodos를 임시 호출
           this.getTodos()
           // localSaveTodo(this.todos)
@@ -67,13 +67,13 @@ export default {
       const vm = this
       // const testURL = 'https://todos.garam.xyz/api/todos'
       // vm.$http.get(testURL).then(result => {
-      vm.$http.get(`${gURL}/list`).then(result => {
+      vm.$http.get(`${gTodoURL}/list`).then(result => {
         vm.todos = result.data
       })
     }
   },
   mounted () {
-    this.getTodos()
+    // this.getTodos()
     // this.localLoadTodos()
   }
 }

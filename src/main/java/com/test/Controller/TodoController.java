@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.validation.constraints.Null;
 
-import com.test.Vo.todoVo;
-import com.test.mappers.TestMapper;
+import com.test.Vo.TodoVo;
+import com.test.mappers.TodoMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,24 +22,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/")
-public class UserController {
+@RequestMapping("/todo/")
+public class TodoController {
 
    @Autowired
-   private TestMapper testmapper;
+   private TodoMapper todomapper;
    
    @GetMapping("list")
-   public List<todoVo> todoList() {
-      List<todoVo> todolist = new ArrayList<>();
-      todolist = testmapper.listAll();
+   public List<TodoVo> todoList() {
+      List<TodoVo> todolist = new ArrayList<>();
+      todolist = todomapper.listAll();
       return todolist;
    }
 
 	@PostMapping("regist")
-	public ResponseEntity<todoVo> regist(@RequestBody todoVo todo) {
+	public ResponseEntity<TodoVo> regist(@RequestBody TodoVo todo) {
       try {
          // System.out.println(todo);
-         testmapper.regist(todo);
+         todomapper.regist(todo);
 			return new ResponseEntity<>(todo, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -50,7 +50,7 @@ public class UserController {
    public ResponseEntity<Null> delete(@PathVariable int id) {
       try {
          // System.out.println(id);
-         testmapper.remove(id);
+         todomapper.remove(id);
          return new ResponseEntity<>(HttpStatus.OK);
       } catch (Exception e) {
          return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

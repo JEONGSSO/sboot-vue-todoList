@@ -2,17 +2,17 @@ package com.test.mappers;
 
 import java.util.List;
 
-import com.test.Vo.todoVo;
+import com.test.Vo.TodoVo;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-public interface TestMapper {
+public interface TodoMapper {
 
    @Insert("insert into todo(content) value( #{content} )")
-   public void regist(todoVo todo);
+   public void regist(TodoVo todo);
    
    @Delete("delete from todo where id = #{id}")
    public void remove(@Param("id") int id);
@@ -21,7 +21,7 @@ public interface TestMapper {
    // public todoVo search(@Param("bno") int bno);
 
    @Select("select * from todo")
-   public List<todoVo> listAll();
+   public List<TodoVo> listAll();
 
 
 
