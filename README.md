@@ -1,5 +1,6 @@
-# FrontEnd: Vue.js
-# BackEnd: SpringBoot(MySql, GCP)
+#FrontEnd: Vue.js(BootStrap, bootStrapVue)
+#BackEnd: SpringBoot(MySql, GCP)
+#Axios, moment
 
 ## todoList
 ## 게시판
