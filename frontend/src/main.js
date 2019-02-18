@@ -8,21 +8,19 @@
   전역으로 처리해야할 일이 있으면 이 곳에서 진행하시면 됩니다.
 */
 
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
-import moment from 'moment'
-// import axios from 'axios'
+import Vue from 'vue';
+import BootstrapVue from 'bootstrap-vue';
+import moment from 'moment';
 
-import App from './App'
-import router from './router'
+import App from './App';
+import router from './router';
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 
-Vue.config.productionTip = false
-Vue.use(BootstrapVue)
-Vue.prototype.moment = moment
-// Vue.prototype.$http = axios
+Vue.config.productionTip = false;
+Vue.use(BootstrapVue);
+Vue.prototype.moment = moment;
 
 /* eslint-disable no-new */
 new Vue({
@@ -31,4 +29,4 @@ new Vue({
   BootstrapVue,
   components: { App },
   template: '<App/>'
-})
+});

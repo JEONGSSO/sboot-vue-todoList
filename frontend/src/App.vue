@@ -15,9 +15,9 @@ export default {
   data () {
     return {
       message: 'Wow'
-    }
+    };
   }
-}
+};
 </script>
 
 <style>

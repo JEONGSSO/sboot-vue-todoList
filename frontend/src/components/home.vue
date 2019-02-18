@@ -44,30 +44,30 @@ export default {
         { id: 1, text: 'Cheese' },
         { id: 2, text: 'Whatever else humans are supposed to eat' }
       ]
-    }
+    };
   },
   methods: {
     visitCount () {
-      this.visit++
-      this.isVisible = true
+      this.visit++;
+      this.isVisible = true;
     },
     searchTerm () {
-      const URI = 'https://jsonplaceholder.typicode.com'
+      const URI = 'https://jsonplaceholder.typicode.com';
       this.$http.get(`${URI}/posts`).then(result => {
-        console.log(result)
-        this.posts = result.data
+        console.log(result);
+        this.posts = result.data;
       }).catch(err => {
-        console.log(err)
-        alert('오류가 발생했습니다.')
-      })
+        console.log(err);
+        alert('오류가 발생했습니다.');
+      });
     }
   },
   computed: {
     tvisit () {
-      return this.home + this.visit
+      return this.home + this.visit;
     },
     hasResult () {
-      return this.posts.length > 0
+      return this.posts.length > 0;
     }
   },
   components: {
@@ -76,6 +76,6 @@ export default {
       template: '<li>{{ todo.text }}</li>'
     }
   }
-}
+};
 
 </script>

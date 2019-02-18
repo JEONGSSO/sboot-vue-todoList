@@ -23,7 +23,7 @@
 <script>
 
 // const TODOS_LS = 'loadedTodos'
-const gTodoURL = 'http://localhost:8080/todo'
+const gTodoURL = 'http://localhost:8080/todo';
 
 export default {
   name: 'todoPage',
@@ -31,58 +31,58 @@ export default {
     return {
       name: null,
       todos: []
-    }
+    };
   },
   methods: {
     delTodo (targetTodo) {
-      const vm = this
+      const vm = this;
       this.todos.map((_todo, i, obj) => {
         if (_todo.id === targetTodo.id) {
           vm.$http.delete(`${gTodoURL}/delete/${targetTodo.id}`).then(result => {
-            // console.log(result)
+            // console.log(result);
             if (result.status === 200) {
-              obj.splice(i, 1)
+              obj.splice(i, 1);
             } else {
-              alert('Fail Remove')
+              alert('Fail Remove');
             }
-          })
+          });
         }
-      })
+      });
       // localSaveTodo(this.todos)
     },
     addTodo (content) {
       if (!isEmpty(content)) {
-        const vm = this
+        const vm = this;
         // 서버에 요청시 415 Invalid mime type charset=UTF-8 추가 해결
-        vm.$http.defaults.headers.post['Content-type'] = 'application/json;charset=UTF-8'
+        vm.$http.defaults.headers.post['Content-type'] = 'application/json;charset=UTF-8';
         vm.$http.post(`${gTodoURL}/regist`, { content: content }).then(result => {
           // vm.todos.push(content) 빈 상자가 나와서 getTodos를 임시 호출
-          this.getTodos()
+          this.getTodos();
           // localSaveTodo(this.todos)
-        })
+        });
       }
-      this.name = null
+      this.name = null;
     },
     getTodos () {
-      const vm = this
+      const vm = this;
       // const testURL = 'https://todos.garam.xyz/api/todos'
       // vm.$http.get(testURL).then(result => {
       vm.$http.get(`${gTodoURL}/list`).then(result => {
-        vm.todos = result.data
-      })
+        vm.todos = result.data;
+      });
     }
   },
   mounted () {
     // this.getTodos()
     // this.localLoadTodos()
   }
-}
+};
 
 function isEmpty (value) {
   if (value) {
-    return false
+    return false;
   } else {
-    return true
+    return true;
   }
 }
 
