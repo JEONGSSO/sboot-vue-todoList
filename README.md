@@ -1,6 +1,6 @@
-# sboot-vue
-##스프링 부트와 vue  MySql, GCP
+# FrontEnd: Vue.js
+# BackEnd: SpringBoot(MySql, GCP)
 
-### todoList
-### 게시판
+## todoList
+## 게시판
 
