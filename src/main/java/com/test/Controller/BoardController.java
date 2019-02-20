@@ -33,6 +33,24 @@ public class BoardController {
       return boardList;
    }
 
+   @GetMapping("count")
+   public int boardPageCount() {
+      int totalCount = boardMapper.totalCount();
+      return totalCount;
+   }
+
+   @GetMapping("page/{perPage}")
+   public List<BoardVo> listPage(@PathVariable int perPage) {
+      if (perPage <= 0) {
+         perPage = 1;
+      }
+      perPage = (perPage - 1) * 5;
+      List<BoardVo> boardListPage = new ArrayList<>();
+      boardListPage = boardMapper.listPage(perPage);
+      System.out.println(boardListPage);
+      return boardListPage;
+   }
+
    @PostMapping("regist")
    public BoardVo regist(@RequestBody BoardVo boardvo) {
       boardMapper.regist(boardvo);

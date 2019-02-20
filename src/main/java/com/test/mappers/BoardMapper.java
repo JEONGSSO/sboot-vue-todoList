@@ -12,8 +12,14 @@ import org.apache.ibatis.annotations.Update;
 
 public interface BoardMapper {
 
-   @Select("select * from board")
+   @Select("select * from board order by bno desc")
    public List<BoardVo> listAll();
+   
+   @Select("select count(*) as bno from board")
+   public int totalCount();
+
+   @Select("select * from board where bno > 0 order by bno desc, regdata desc limit #{page}, 5")
+   public List<BoardVo> listPage(@Param("page") int page);
 
    @Insert ("insert into board(title, content, writer)values( #{title}, #{content}, #{writer})")
    public void regist(BoardVo boardvo);

@@ -13,7 +13,7 @@
 
     <b-table id="board" striped hover :items="boards" :fields="fields">
       <template slot="title" slot-scope="boards">
-        <b-btn id="read_btn" v-b-modal.board variant="link" @click="showModal = true, readBoard(boards.item.bno)">
+        <b-btn id="read_btn" v-b-modal.modal variant="link" @click="showModal = true, readBoard(boards.item.bno)">
           {{ boards.item.title }}
         </b-btn>
       </template>
@@ -22,8 +22,16 @@
       </template>
     </b-table>
 
-    <b-btn id="write_btn" class="fl" v-b-modal.board @click="clearForm()">글 쓰기</b-btn>
-    <b-modal id="board" v-show="showModal" ref="modal">
+    <b-btn id="write_btn" class="fl" v-b-modal.modal @click="clearForm()">글 쓰기</b-btn>
+    <span class="pagination">
+      <b-pagination size="sm"
+        :per-page="perPage"
+        :limit="totalRows"
+        @input="boardPaging"
+       />
+    </span>
+
+    <b-modal id="modal" v-show="showModal" ref="modal">
       <div class="input-group input-group-sm mb-3">
         <div class="input-group-prepend mb-3">
           <span class="input-group-text">제목</span>
@@ -33,6 +41,9 @@
         </div>
           <textarea rows="5" cols="70" v-model="form.content" v-bind:readonly="isReadOnly"></textarea>
       </div>
+      <div id="reply" v-show="!isWrite">
+        <p>리플 놓을곳</p>
+      </div>
         <div slot="modal-footer">
           <b-button class="float-right ml-1" variant="primary" @click="createBorad()" v-show="isNotNull && isWrite">OK</b-button>
           <b-button class="float-right ml-1" variant="danger" @click="deleteBoard(form.bno)" v-show="!isWrite">삭제</b-button>
@@ -40,7 +51,9 @@
             {{btnMessage = isReadOnly ? '수정' : 'OK'}}
           </b-button>
         </div>
+
     </b-modal>
+
   </div>
 </template>
 
@@ -66,6 +79,9 @@ export default {
         title: '',
         content: ''
       },
+      currentPage: 1,
+      perPage: 5,
+      totalRows: 1,
       btnMessage: '',
       isSuccess: false,
       isReadOnly: true,
@@ -75,11 +91,26 @@ export default {
     };
   },
   methods: {
-    getBoardList () {
+    // getBoardList () {
+    //   const vm = this;
+    //   const getListURL = `${gBoardURL}/list`;
+    //   sendAxios('GET', getListURL).then(result => {
+    //     vm.boards = result.data;
+    //     vm.perPage = Math.ceil(result.data.length / 5);
+    //   });
+    // },
+    boardCount () {
       const vm = this;
-      const getListURL = `${gBoardURL}/list`;
-      sendAxios('GET', getListURL).then(result => {
-        vm.boards = result.data;
+      const getCountURL = `${gBoardURL}/count`;
+      sendAxios('GET', getCountURL).then(result => {
+        vm.totalRows = Math.ceil(result.data / vm.perPage);
+      });
+      vm.boardPaging(1);
+    },
+    boardPaging (pageNum) {
+      const getPerPageURL = `${gBoardURL}/page/${pageNum}`;
+      sendAxios('GET', getPerPageURL).then(result => {
+        this.boards = result.data;
       });
     },
     readBoard (bno) {
@@ -141,7 +172,9 @@ export default {
     }
   },
   mounted () {
-    this.getBoardList();
+    // this.getBoardList();
+    // this.boardPaging();
+    this.boardCount();
   },
   watch: {
     form: {
@@ -163,6 +196,17 @@ export default {
 <style>
   #container {
     margin-left: 15%;
+  }
+
+  .pagination {
+    margin-left: 16%;
+  }
+
+  .nav {
+    position: absolute;
+    bottom: 92.5%;
+    left: 0px;
+    top: 0px;
   }
 
   .alert-dismissible {
@@ -193,6 +237,14 @@ export default {
 
   .fl {
     float: left;
+  }
+
+  .fr {
+    float: right;
+  }
+
+  .p100 {
+    padding-right: 100%;
   }
 
   .fade-enter-active, .fade-leave-active {

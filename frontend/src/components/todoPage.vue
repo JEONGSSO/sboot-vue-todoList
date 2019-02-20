@@ -22,6 +22,8 @@
 
 <script>
 
+import sendAxios from '../resources/sendAxios.js';
+
 // const TODOS_LS = 'loadedTodos'
 const gTodoURL = 'http://localhost:8080/todo';
 
@@ -35,11 +37,10 @@ export default {
   },
   methods: {
     delTodo (targetTodo) {
-      const vm = this;
+      const deleteURL = `${gTodoURL}/delete/${targetTodo.id}`;
       this.todos.map((_todo, i, obj) => {
         if (_todo.id === targetTodo.id) {
-          vm.$http.delete(`${gTodoURL}/delete/${targetTodo.id}`).then(result => {
-            // console.log(result);
+          sendAxios('DELETE', deleteURL).then(result => {
             if (result.status === 200) {
               obj.splice(i, 1);
             } else {
@@ -52,12 +53,12 @@ export default {
     },
     addTodo (content) {
       if (!isEmpty(content)) {
-        const vm = this;
-        // 서버에 요청시 415 Invalid mime type charset=UTF-8 추가 해결
-        vm.$http.defaults.headers.post['Content-type'] = 'application/json;charset=UTF-8';
-        vm.$http.post(`${gTodoURL}/regist`, { content: content }).then(result => {
-          // vm.todos.push(content) 빈 상자가 나와서 getTodos를 임시 호출
+        const addURL = `${gTodoURL}/regist`;
+        sendAxios('POST', addURL, { content: content }).then(result => {
           this.getTodos();
+          // vm.todos.push(content) 빈 상자가 나와서 getTodos를 임시 호출
+          // 서버에 요청시 415 Invalid mime type charset=UTF-8 추가 해결
+          // vm.axios.defaults.headers.post['Content-type'] = 'application/json;charset=UTF-8';
           // localSaveTodo(this.todos)
         });
       }
@@ -65,16 +66,15 @@ export default {
     },
     getTodos () {
       const vm = this;
-      // const testURL = 'https://todos.garam.xyz/api/todos'
-      // vm.$http.get(testURL).then(result => {
-      vm.$http.get(`${gTodoURL}/list`).then(result => {
+      const loadURL = `${gTodoURL}/list`;
+      sendAxios('GET', loadURL).then(result => {
         vm.todos = result.data;
       });
     }
   },
   mounted () {
-    // this.getTodos()
-    // this.localLoadTodos()
+    // this.getTodos();
+    // this.localLoadTodos();
   }
 };
 
