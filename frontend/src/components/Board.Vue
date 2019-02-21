@@ -11,7 +11,7 @@
       <div class="alert alert-success alert-dismissible fade show" id="board" role="alert" v-show="isSuccess">작업이 완료 되었습니다.</div>
     </transition>
 
-    <b-table id="board" striped hover :items="boards" :fields="fields">
+    <b-table id="board" striped hover :items="boards" :fields="fields" :busy.sync="isBusy">
       <template slot="title" slot-scope="boards">
         <b-btn id="read_btn" v-b-modal.modal variant="link" @click="showModal = true, readBoard(boards.item.bno)">
           {{ boards.item.title }}
@@ -23,12 +23,15 @@
     </b-table>
 
     <b-btn id="write_btn" class="fl" v-b-modal.modal @click="clearForm()">글 쓰기</b-btn>
-    <span class="pagination">
-      <b-pagination size="sm"
-        :per-page="perPage"
-        :limit="totalRows"
-        @input="boardPaging"
-       />
+    <span>
+      <Paginate
+        :pageCount="totalRows"
+        :clickHandler="boardPaging"
+        :prevText="'<'"
+        :nextText="'>'"
+        no-li-surround
+      >
+      </Paginate>
     </span>
 
     <b-modal id="modal" v-show="showModal" ref="modal">
@@ -61,13 +64,15 @@
 
 import todoList from './todoPage';
 import sendAxios from '../resources/sendAxios.js';
+import Paginate from 'vuejs-paginate';
 
 const gBoardURL = 'http://localhost:8080';
 
 export default {
   name: 'board',
   components: {
-    todoList
+    todoList,
+    Paginate
   },
   data () {
     return {
@@ -79,9 +84,10 @@ export default {
         title: '',
         content: ''
       },
-      currentPage: 1,
+      isBusy: false,
+      currentPage: 10,
       perPage: 5,
-      totalRows: 1,
+      totalRows: 0,
       btnMessage: '',
       isSuccess: false,
       isReadOnly: true,
@@ -102,6 +108,7 @@ export default {
     boardCount () {
       const vm = this;
       const getCountURL = `${gBoardURL}/count`;
+      this.isBusy = true;
       sendAxios('GET', getCountURL).then(result => {
         vm.totalRows = Math.ceil(result.data / vm.perPage);
       });
@@ -112,6 +119,7 @@ export default {
       sendAxios('GET', getPerPageURL).then(result => {
         this.boards = result.data;
       });
+      this.isBusy = false;
     },
     readBoard (bno) {
       const vm = this;
@@ -188,6 +196,11 @@ export default {
       },
       deep: true
     }
+  },
+  computed: {
+    totalRowss () {
+      return this.totalRows;
+    }
   }
 };
 
@@ -198,8 +211,12 @@ export default {
     margin-left: 15%;
   }
 
-  .pagination {
+  /* .pagination {
     margin-left: 16%;
+  } */
+
+  .page-item {
+    border: solid black 1px;
   }
 
   .nav {

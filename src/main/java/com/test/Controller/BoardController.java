@@ -47,7 +47,6 @@ public class BoardController {
       perPage = (perPage - 1) * 5;
       List<BoardVo> boardListPage = new ArrayList<>();
       boardListPage = boardMapper.listPage(perPage);
-      System.out.println(boardListPage);
       return boardListPage;
    }
 
