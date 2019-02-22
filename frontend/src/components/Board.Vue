@@ -35,17 +35,29 @@
     </span>
 
     <b-modal id="modal" v-show="showModal" ref="modal">
-      <div class="input-group input-group-sm mb-3">
-        <div class="input-group-prepend mb-3">
+      <div class="input-group input-group-sm">
+        <div class="input-group-append mb-3">
           <span class="input-group-text">제목</span>
-            <input type="text" class="form-control" v-model="form.title" v-bind:readonly="isReadOnly">
+          <input type="text" class="form-control col-6" v-model="form.title" v-bind:readonly="isReadOnly"/>
           <span class="input-group-text">작성자</span>
-          <input type="text" class="form-control" v-model="form.writer" v-bind:readonly="!isWrite">
+          <input type="text" class="form-control" v-model="form.writer" v-bind:readonly="!isWrite"/>
         </div>
           <textarea rows="5" cols="70" v-model="form.content" v-bind:readonly="isReadOnly"></textarea>
       </div>
       <div id="reply" v-show="!isWrite">
-        <p>리플 놓을곳</p>
+        <hr>
+        <div v-if="replys.length === 0">
+            <p>등록된 댓글이 없습니다.</p>
+        </div>
+        <li style="list-style:none;" v-else v-for="(replyForm, index) in replys" :key="index">
+          <div class="input-group col-5">
+            <input style="display: inline !important" type="text" class="form-control r-15" v-model="replyForm.replyer">
+          </div>
+          <div class="input-group col-10">
+            <input type="text" class="form-control mb-2 r-15 pr-3" v-model="replyForm.rtext">
+            <b-btn variant="danger" class="mb-2">X</b-btn>
+          </div>
+        </li>
       </div>
         <div slot="modal-footer">
           <b-button class="float-right ml-1" variant="primary" @click="createBorad()" v-show="isNotNull && isWrite">OK</b-button>
@@ -78,6 +90,13 @@ export default {
     return {
       fields: [ 'bno', 'writer', 'title', 'regdata' ],
       boards: [],
+      replys: [],
+      replyForm: {
+        bno: '',
+        rno: '',
+        rtext: '',
+        replyer: ''
+      },
       form: {
         bno: '',
         writer: '',
@@ -105,6 +124,15 @@ export default {
     //     vm.perPage = Math.ceil(result.data.length / 5);
     //   });
     // },
+    replyAll (bno) {
+      const vm = this;
+      const getReplyAll = `${gBoardURL}/reply/${bno}`;
+      sendAxios('GET', getReplyAll).then(result => {
+        vm.replys = result.data;
+        // console.log(vm.replys);
+      });
+      vm.isBusy = false;
+    },
     boardCount () {
       const vm = this;
       const getCountURL = `${gBoardURL}/count`;
@@ -126,9 +154,11 @@ export default {
       const readURL = `${gBoardURL}/read/${bno}`;
       vm.isReadOnly = true;
       vm.isWrite = false;
+      vm.isBusy = true;
       sendAxios('GET', readURL).then(result => {
         vm.form = result.data;
       });
+      vm.replyAll(bno);
     },
     createBorad () {
       const vm = this;
@@ -196,11 +226,6 @@ export default {
       },
       deep: true
     }
-  },
-  computed: {
-    totalRowss () {
-      return this.totalRows;
-    }
   }
 };
 
@@ -214,10 +239,6 @@ export default {
   /* .pagination {
     margin-left: 16%;
   } */
-
-  .page-item {
-    border: solid black 1px;
-  }
 
   .nav {
     position: absolute;
@@ -262,6 +283,10 @@ export default {
 
   .p100 {
     padding-right: 100%;
+  }
+
+  .r-15 {
+    right: 15px;
   }
 
   .fade-enter-active, .fade-leave-active {
