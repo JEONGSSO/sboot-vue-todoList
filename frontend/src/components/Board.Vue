@@ -1,15 +1,53 @@
 <template>
   <div id="container">
-    <div id="todoModal">
-        <b-btn v-b-modal.todo>TodoList</b-btn>
+    <!-- <div id="todoModal">
+      <b-btn v-b-modal.todo>TodoList</b-btn>
     </div>
     <b-modal id="todo" title="Todo List">
       <todoList></todoList>
-    </b-modal>
+    </b-modal> -->
 
     <transition name="fade">
       <div class="alert alert-success alert-dismissible fade show" id="board" role="alert" v-show="isSuccess">작업이 완료 되었습니다.</div>
     </transition>
+
+  <div class="nav">
+    <b-navbar toggleable="lg" type="dark" variant="secondary">
+      <b-navbar-brand href="#">Home</b-navbar-brand>
+
+      <b-navbar-toggle target="nav_collapse" />
+
+      <b-collapse is-nav id="nav_collapse">
+        <!-- Right aligned nav items -->
+        <b-navbar-nav>
+          <b-nav-form>
+            <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search" />
+            <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+          </b-nav-form>
+          <b-btn variant="warning" v-b-modal.sign_modal @click="clearSign()">로그인</b-btn>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+  </div>
+
+  <b-modal size="sm" id="sign_modal" ok-only @ok="sign()">
+    <div v-show="isNotSingUp">
+      <p>회원이 아니신가요?</p>
+      <b-button variant="success" class="mt-3" @click="isNotSingUp = false">회원가입</b-button>
+      <hr>
+   </div>
+    <b-form>
+      <div v-if="!isNotSingUp">
+        <p>회원 가입</p>
+        <b-input id="sign_id" placeholder="ID" v-model="signForm.id"/>
+        <b-input type="password" id="sign_pw" placeholder="Password" v-model="signForm.pw"/>
+      </div>
+      <div v-else>
+        <b-input id="sign_id" placeholder="ID" v-model="signForm.id"/>
+        <b-input type="password" id="sign_pw" placeholder="Password" v-model="signForm.pw"/>
+      </div>
+    </b-form>
+  </b-modal>
 
     <b-table id="board" striped hover :items="boards" :fields="fields" :busy.sync="isBusy">
       <template slot="title" slot-scope="boards">
@@ -55,7 +93,8 @@
           </div>
           <div class="input-group col-10">
             <input type="text" class="form-control mb-2 r-15 pr-3" v-model="replyForm.rtext">
-            <b-btn variant="danger" class="mb-2">X</b-btn>
+            <b-btn variant="light" class="mb-2">✏️</b-btn>
+            <b-btn variant="light" class="mb-2 ml-1">❌</b-btn>
           </div>
         </li>
       </div>
@@ -74,7 +113,7 @@
 
 <script>
 
-import todoList from './todoPage';
+// import todoList from './todoPage';
 import sendAxios from '../resources/sendAxios.js';
 import Paginate from 'vuejs-paginate';
 
@@ -83,13 +122,17 @@ const gBoardURL = 'http://localhost:8080';
 export default {
   name: 'board',
   components: {
-    todoList,
     Paginate
+    // todoList
   },
   data () {
     return {
       fields: [ 'bno', 'writer', 'title', 'regdata' ],
       boards: [],
+      signForm: {
+        id: '',
+        pw: ''
+      },
       replys: [],
       replyForm: {
         bno: '',
@@ -103,6 +146,7 @@ export default {
         title: '',
         content: ''
       },
+      isNotSingUp: true,
       isBusy: false,
       currentPage: 10,
       perPage: 5,
@@ -116,14 +160,19 @@ export default {
     };
   },
   methods: {
-    // getBoardList () {
-    //   const vm = this;
-    //   const getListURL = `${gBoardURL}/list`;
-    //   sendAxios('GET', getListURL).then(result => {
-    //     vm.boards = result.data;
-    //     vm.perPage = Math.ceil(result.data.length / 5);
-    //   });
-    // },
+    sign () {
+      const vm = this;
+      const signURL = `${gBoardURL}/sign`;
+      if (vm.isNotSingUp === false) {
+        sendAxios('POST', signURL, vm.signForm).then(result => {
+          console.log('가입!!!!!' + result);
+        });
+      } else {
+        sendAxios('GET', signURL).then(result => {
+          console.log('로그인!!!!!' + result);
+        });
+      };
+    },
     replyAll (bno) {
       const vm = this;
       const getReplyAll = `${gBoardURL}/reply/${bno}`;
@@ -207,6 +256,13 @@ export default {
       vm.isNotNull = false;
       vm.isWrite = true;
       vm.isReadOnly = false;
+    },
+    clearSign () {
+      const vm = this;
+      vm.signForm.id = '';
+      vm.signForm.pw = '';
+      vm.isNotSingUp = true;
+      vm.isNotNull = false;
     }
   },
   mounted () {
@@ -241,10 +297,12 @@ export default {
   } */
 
   .nav {
-    position: absolute;
-    bottom: 92.5%;
-    left: 0px;
-    top: 0px;
+    /* position: absolute; */
+    /* bottom: 92.5%; */
+    /* left: 0px;
+    top: 0px; */
+    margin: 0;
+    padding: 0;
   }
 
   .alert-dismissible {
@@ -328,3 +386,12 @@ export default {
       </b-button>
     </div>
 </b-modal> -->
+
+<!--    getBoardList () {
+      const vm = this;
+      const getListURL = `${gBoardURL}/list`;
+      sendAxios('GET', getListURL).then(result => {
+        vm.boards = result.data;
+        vm.perPage = Math.ceil(result.data.length / 5);
+      });
+    }, -->
