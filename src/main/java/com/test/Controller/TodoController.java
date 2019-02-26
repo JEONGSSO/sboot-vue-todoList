@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class TodoController {
 
    @Autowired
-   private TodoMapper todomapper;
+   private TodoMapper todoMapper;
    
    @GetMapping("list")
    public List<TodoVo> todoList() {
       List<TodoVo> todolist = new ArrayList<>();
-      todolist = todomapper.listAll();
+      todolist = todoMapper.listAll();
       return todolist;
    }
 
@@ -39,7 +39,7 @@ public class TodoController {
 	public ResponseEntity<TodoVo> regist(@RequestBody TodoVo todo) {
       try {
          // System.out.println(todo);
-         todomapper.regist(todo);
+         todoMapper.regist(todo);
 			return new ResponseEntity<>(todo, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -50,7 +50,7 @@ public class TodoController {
    public ResponseEntity<Null> delete(@PathVariable int id) {
       try {
          // System.out.println(id);
-         todomapper.remove(id);
+         todoMapper.remove(id);
          return new ResponseEntity<>(HttpStatus.OK);
       } catch (Exception e) {
          return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

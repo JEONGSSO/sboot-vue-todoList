@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ReplyController {
 
    @Autowired
-   private ReplyMapper replymapper;
+   private ReplyMapper replyMapper;
 
    @GetMapping("{bno}")
    public List<ReplyVo> getReply(@PathVariable int bno) {
       List<ReplyVo> replyall = new ArrayList<>();
-      replyall = replymapper.getReplyAll(bno);
+      replyall = replyMapper.getReplyAll(bno);
       return replyall;
    }
    

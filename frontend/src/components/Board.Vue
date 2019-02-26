@@ -30,7 +30,10 @@
     </b-navbar>
   </div>
 
-  <b-modal size="sm" id="sign_modal" ok-only @ok="sign()">
+  <b-modal size="sm" id="sign_modal" ref="sign">
+    <transition name="fade">
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" v-show="failLogin">아이디 또는 비밀번호가 다릅니다.</div>
+    </transition>
     <div v-show="isNotSingUp">
       <p>회원이 아니신가요?</p>
       <b-button variant="success" class="mt-3" @click="isNotSingUp = false">회원가입</b-button>
@@ -39,14 +42,19 @@
     <b-form>
       <div v-if="!isNotSingUp">
         <p>회원 가입</p>
-        <b-input id="sign_id" placeholder="ID" v-model="signForm.id"/>
-        <b-input type="password" id="sign_pw" placeholder="Password" v-model="signForm.pw"/>
+        <b-input id="sign_id" placeholder="아이디는 4-12 이내로 써주세요."
+                v-model="signForm.uid" :state="validationId" class="mb-2"/>
+        <b-input type="password" id="sign_pw" placeholder="패스워드는 4-12 이내로 써주세요."
+                v-model="signForm.upw" :state="validationPw"/>
       </div>
       <div v-else>
-        <b-input id="sign_id" placeholder="ID" v-model="signForm.id"/>
-        <b-input type="password" id="sign_pw" placeholder="Password" v-model="signForm.pw"/>
+        <b-input id="sign_id" placeholder="ID" v-model="signForm.uid" class="mb-2"/>
+        <b-input type="password" id="sign_pw" placeholder="Password" v-model="signForm.upw"/>
       </div>
     </b-form>
+    <div slot="modal-footer">
+      <b-button class="float-right ml-1" variant="primary" @click="sign()">OK</b-button>
+    </div>
   </b-modal>
 
     <b-table id="board" striped hover :items="boards" :fields="fields" :busy.sync="isBusy">
@@ -130,8 +138,8 @@ export default {
       fields: [ 'bno', 'writer', 'title', 'regdata' ],
       boards: [],
       signForm: {
-        id: '',
-        pw: ''
+        uid: '',
+        upw: ''
       },
       replys: [],
       replyForm: {
@@ -147,6 +155,7 @@ export default {
         content: ''
       },
       isNotSingUp: true,
+      failLogin: false,
       isBusy: false,
       currentPage: 10,
       perPage: 5,
@@ -163,13 +172,23 @@ export default {
     sign () {
       const vm = this;
       const signURL = `${gBoardURL}/sign`;
+      if (vm.signForm.uid.length < 4 && vm.signForm.uid.length > 13) { //@@@@@@@@@@@@@@요기부터
+        return alert('아이디 및 비밀번호는 4-12자 이내로 입력해주세요.');
+      }
       if (vm.isNotSingUp === false) {
         sendAxios('POST', signURL, vm.signForm).then(result => {
-          console.log('가입!!!!!' + result);
+          vm.signUpComplete();
         });
       } else {
-        sendAxios('GET', signURL).then(result => {
-          console.log('로그인!!!!!' + result);
+        sendAxios('POST', `${signURL}/login`, vm.signForm).then(result => {
+          let login = JSON.stringify(result.data);
+          if (login === '0') {
+            vm.failLogin = true;
+            vm.$refs.sign.show();
+          } else {
+            vm.failLogin = false;
+            console.log('로그인 성공!!!');
+          }
         });
       };
     },
@@ -191,7 +210,7 @@ export default {
       });
       vm.boardPaging(1);
     },
-    boardPaging (pageNum) {
+    boardPaging (pageNum = 1) {
       const getPerPageURL = `${gBoardURL}/page/${pageNum}`;
       sendAxios('GET', getPerPageURL).then(result => {
         this.boards = result.data;
@@ -238,7 +257,7 @@ export default {
     },
     jobComplete (doneSuccess, isShow) {
       const vm = this;
-      vm.getBoardList();
+      vm.boardPaging();
       vm.isSuccess = doneSuccess;
       vm.showModal = isShow;
 
@@ -259,10 +278,18 @@ export default {
     },
     clearSign () {
       const vm = this;
-      vm.signForm.id = '';
-      vm.signForm.pw = '';
+      vm.signForm.uid = '';
+      vm.signForm.upw = '';
       vm.isNotSingUp = true;
       vm.isNotNull = false;
+    },
+    signUpComplete () {
+      const vm = this;
+      vm.isNotSingUp = true;
+      vm.signForm.uid = '';
+      vm.signForm.upw = '';
+      vm.$refs.sign.show();
+      alert(`가입이 완료되었습니다.`);
     }
   },
   mounted () {
@@ -281,6 +308,14 @@ export default {
         // this.isNotNull = val.title && val.writer && val.content ? true : false;
       },
       deep: true
+    }
+  },
+  computed: {
+    validationId () {
+      return this.signForm.uid.length > 3 && this.signForm.uid.length < 13;
+    },
+    validationPw () {
+      return this.signForm.upw.length > 3 && this.signForm.upw.length < 13;
     }
   }
 };
