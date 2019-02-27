@@ -24,15 +24,19 @@
             <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search" />
             <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
           </b-nav-form>
-          <b-btn variant="warning" v-b-modal.sign_modal @click="clearSign()">로그인</b-btn>
+            <b-btn v-show="!isLogin" variant="warning" v-b-modal.sign_modal @click="clearSign()">로그인</b-btn>
+            <b-btn v-show="isLogin" variant="warning" @click="logout()">로그아웃</b-btn>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
   </div>
 
   <b-modal size="sm" id="sign_modal" ref="sign">
-    <transition name="fade">
-      <div class="alert alert-danger alert-dismissible fade show" role="alert" v-show="failLogin">아이디 또는 비밀번호가 다릅니다.</div>
+    <transition>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" v-show="failLogin">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+    </transition>
+    <transition>
+      <div class="alert alert-primary alert-dismissible fade show" role="alert" v-show="notLogin">로그인이 필요한 서비스 입니다.</div>
     </transition>
     <div v-show="isNotSingUp">
       <p>회원이 아니신가요?</p>
@@ -48,8 +52,8 @@
                 v-model="signForm.upw" :state="validationPw"/>
       </div>
       <div v-else>
-        <b-input id="sign_id" placeholder="ID" v-model="signForm.uid" class="mb-2"/>
-        <b-input type="password" id="sign_pw" placeholder="Password" v-model="signForm.upw"/>
+        <b-input id="sign_id" placeholder="ID" v-model="loginForm.uid" class="mb-2"/>
+        <b-input type="password" id="sign_pw" placeholder="Password" v-model="loginForm.upw"/>
       </div>
     </b-form>
     <div slot="modal-footer">
@@ -68,7 +72,8 @@
       </template>
     </b-table>
 
-    <b-btn id="write_btn" class="fl" v-b-modal.modal @click="clearForm()">글 쓰기</b-btn>
+    <b-btn id="write_btn" class="fl" @click="userValid()">글 쓰기</b-btn>
+    <!-- <b-btn v-show="isLogin" id="write_btn" class="fl" v-b-modal.modal @click="clearForm(), form.writer = userId">글 쓰기</b-btn> -->
     <span>
       <Paginate
         :pageCount="totalRows"
@@ -84,16 +89,17 @@
       <div class="input-group input-group-sm">
         <div class="input-group-append mb-3">
           <span class="input-group-text">제목</span>
-          <input type="text" class="form-control col-6" v-model="form.title" v-bind:readonly="isReadOnly"/>
-          <span class="input-group-text">작성자</span>
-          <input type="text" class="form-control" v-model="form.writer" v-bind:readonly="!isWrite"/>
+          <input type="text" class="form-control" v-model="form.title" v-bind:readonly="isReadOnly"/>
+          <input v-show="false" type="text" class="form-control" v-model="form.writer" readonly/>
+          <span v-show="!isWrite" class="input-group-text">작성자</span>
+          <input v-show="!isWrite" type="text" class="form-control" v-model="form.writer" readonly/>
         </div>
           <textarea rows="5" cols="70" v-model="form.content" v-bind:readonly="isReadOnly"></textarea>
       </div>
       <div id="reply" v-show="!isWrite">
         <hr>
         <div v-if="replys.length === 0">
-            <p>등록된 댓글이 없습니다.</p>
+          <p>등록된 댓글이 없습니다.</p>
         </div>
         <li style="list-style:none;" v-else v-for="(replyForm, index) in replys" :key="index">
           <div class="input-group col-5">
@@ -105,13 +111,17 @@
             <b-btn variant="light" class="mb-2 ml-1">❌</b-btn>
           </div>
         </li>
+        <b-input placeholder="댓글 등록" v-model="addreply"></b-input>
       </div>
         <div slot="modal-footer">
           <b-button class="float-right ml-1" variant="primary" @click="createBorad()" v-show="isNotNull && isWrite">OK</b-button>
-          <b-button class="float-right ml-1" variant="danger" @click="deleteBoard(form.bno)" v-show="!isWrite">삭제</b-button>
-          <b-button class="float-right" variant="primary" @click="isReadOnly = false, updateBoard(form.bno)" v-show="!isWrite">
+          <div v-show="!isWrite && form.writer === userId">
+            <b-button class="float-right ml-1" variant="danger" @click="deleteBoard(form.bno)">삭제</b-button>
+            <b-button class="float-right" variant="primary" @click="updateBoard(form.bno)">
             {{btnMessage = isReadOnly ? '수정' : 'OK'}}
           </b-button>
+          </div>
+          <!-- <b-button class="float-right" variant="primary" @click="isReadOnly = false, updateBoard(form.bno)" v-show="!isWrite"> -->
         </div>
 
     </b-modal>
@@ -141,6 +151,11 @@ export default {
         uid: '',
         upw: ''
       },
+      loginForm: {
+        uid: '',
+        upw: ''
+      },
+      userId: '',
       replys: [],
       replyForm: {
         bno: '',
@@ -148,12 +163,15 @@ export default {
         rtext: '',
         replyer: ''
       },
+      addreply: '',
       form: {
         bno: '',
         writer: '',
         title: '',
         content: ''
       },
+      notLogin: false,
+      isLogin: false,
       isNotSingUp: true,
       failLogin: false,
       isBusy: false,
@@ -169,26 +187,32 @@ export default {
     };
   },
   methods: {
+    logout () {
+      const vm = this;
+      vm.isLogin = false;
+      vm.userId = '';
+      alert('로그아웃 되었습니다!');
+    },
     sign () {
       const vm = this;
       const signURL = `${gBoardURL}/sign`;
-      if (vm.signForm.uid.length < 4 && vm.signForm.uid.length > 13) { //@@@@@@@@@@@@@@요기부터
-        return alert('아이디 및 비밀번호는 4-12자 이내로 입력해주세요.');
-      }
       if (vm.isNotSingUp === false) {
+        let charEnough = vm.signForm.uid.length >= 4 && vm.signForm.uid.length <= 12 && vm.signForm.upw.length >= 4 && vm.signForm.upw.length <= 12;
+        if (!charEnough) {
+          return alert('아이디 및 비밀번호는 4-12자 이내로 입력해주세요.');
+        }
         sendAxios('POST', signURL, vm.signForm).then(result => {
           vm.signUpComplete();
         });
       } else {
-        sendAxios('POST', `${signURL}/login`, vm.signForm).then(result => {
+        sendAxios('POST', `${signURL}/login`, vm.loginForm).then(result => {
           let login = JSON.stringify(result.data);
-          if (login === '0') {
-            vm.failLogin = true;
-            vm.$refs.sign.show();
-          } else {
-            vm.failLogin = false;
-            console.log('로그인 성공!!!');
-          }
+          if (login === '1') {
+            vm.loginSuccess(vm.loginForm.uid);
+          };
+        }).catch(() => {
+          vm.failLogin = true;
+          vm.$refs.sign.show();
         });
       };
     },
@@ -208,7 +232,7 @@ export default {
       sendAxios('GET', getCountURL).then(result => {
         vm.totalRows = Math.ceil(result.data / vm.perPage);
       });
-      vm.boardPaging(1);
+      vm.boardPaging();
     },
     boardPaging (pageNum = 1) {
       const getPerPageURL = `${gBoardURL}/page/${pageNum}`;
@@ -239,6 +263,7 @@ export default {
     updateBoard (bno) {
       const vm = this;
       const updateURL = `${gBoardURL}/update`;
+      vm.isReadOnly = false;
       if (vm.btnMessage === 'OK') {
         sendAxios('PATCH', updateURL, vm.form).then(() => {
           vm.jobComplete(true, false);
@@ -267,6 +292,17 @@ export default {
         }, 2000);
       }
     },
+    userValid () {
+      const vm = this;
+      vm.clearForm();
+      if (vm.userId === '') {
+        vm.notLogin = true;
+        vm.$refs.sign.show();
+        return;
+      }
+      vm.form.writer = vm.userId;
+      vm.$refs.modal.show();
+    },
     clearForm () {
       const vm = this;
       vm.form.title = '';
@@ -275,13 +311,20 @@ export default {
       vm.isNotNull = false;
       vm.isWrite = true;
       vm.isReadOnly = false;
+      vm.failLogin = false;
+      vm.loginForm.uid = '';
+      vm.loginForm.upw = '';
     },
     clearSign () {
       const vm = this;
       vm.signForm.uid = '';
       vm.signForm.upw = '';
+      vm.loginForm.uid = '';
+      vm.loginForm.upw = '';
+      vm.failLogin = false;
       vm.isNotSingUp = true;
       vm.isNotNull = false;
+      vm.notLogin = false;
     },
     signUpComplete () {
       const vm = this;
@@ -290,7 +333,17 @@ export default {
       vm.signForm.upw = '';
       vm.$refs.sign.show();
       alert(`가입이 완료되었습니다.`);
-    }
+    },
+    loginSuccess (userid) {
+      const vm = this;
+      vm.failLogin = false;
+      vm.isLogin = true;
+      vm.userId = userid;
+      vm.$refs.sign.hide();
+    },
+    pushReply () {
+      console.log(this.addreply);
+    }//////////////////여기
   },
   mounted () {
     // this.getBoardList();
@@ -300,7 +353,7 @@ export default {
   watch: {
     form: {
       handler (val) {
-        if (val.title && val.writer && val.content) {
+        if (val.title && val.content && val.writer) {
           this.isNotNull = true;
         } else {
           this.isNotNull = false;

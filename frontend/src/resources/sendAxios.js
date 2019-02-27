@@ -10,7 +10,7 @@ export default function sendAxios (method, url, jsonData) {
   };
   if (jsonData) {
     options.data = JSON.stringify(jsonData);
-    console.log(`sendAxios jsonData >>>>>>>>`, options);
+    console.log(`sendAxios JsonData Test >>>>>>>>`, options);
   }
   let result = axios(options).then(axiosResult => {
     return axiosResult.status === 200
