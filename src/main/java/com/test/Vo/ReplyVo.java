@@ -12,4 +12,5 @@ public class ReplyVo {
    private String rtext;
    private String replyer;
    private Date rdate;
+   private Boolean isEdit;
 }
