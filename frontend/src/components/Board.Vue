@@ -33,7 +33,7 @@
     <b-table id="board" striped hover :items="boards" :fields="fields">
       <template slot="title" slot-scope="boards">
         <b-btn id="read_btn" v-b-modal.modal variant="link" @click="showModal = true, readBoard(boards.item.bno)">
-          {{ boards.item.title }}
+          {{ `${boards.item.title} [${boards.item.replycnt}] `}}
         </b-btn>
       </template>
       <template slot="regdata" slot-scope="boards">
@@ -90,7 +90,8 @@ import login from './login.vue';
 import reply from './reply.vue';
 import sendAxios from '../resources/sendAxios.js';
 
-const gBoardURL = 'http://localhost:8080';
+const gBoardURL = 'http://localhost:8080/board';
+let gPageNum;
 
 export default {
   name: 'board',
@@ -128,6 +129,7 @@ export default {
       vm.boardPaging();
     },
     boardPaging (pageNum = 1) {
+      gPageNum = pageNum;
       const getPerPageURL = `${gBoardURL}/page/${pageNum}`;
       sendAxios('GET', getPerPageURL).then(result => {
         this.boards = result.data;
@@ -135,7 +137,7 @@ export default {
     },
     readBoard (bno) {
       const vm = this;
-      const readURL = `${gBoardURL}/read/${bno}`;
+      const readURL = `${gBoardURL}/bno/${bno}`;
       vm.isReadOnly = true;
       this.$store.state.isWrite = false;
       sendAxios('GET', readURL).then(result => {
@@ -145,15 +147,14 @@ export default {
     },
     createBorad () {
       const vm = this;
-      const createURL = `${gBoardURL}/regist`;
-      sendAxios('POST', createURL, vm.form).then(() => {
+      sendAxios('POST', gBoardURL, vm.form).then(() => {
         vm.$refs.modal.hide();
         vm.jobComplete(true);
       });
     },
     updateBoard (bno) {
       const vm = this;
-      const updateURL = `${gBoardURL}/update`;
+      const updateURL = `${gBoardURL}/bno/${bno}`;
       vm.isReadOnly = false;
       if (vm.btnMessage === 'OK') {
         sendAxios('PATCH', updateURL, vm.form).then(() => {
@@ -169,7 +170,7 @@ export default {
       let confirmOK = confirm('삭제 하시겠습니까?');
       if (confirmOK) {
         const vm = this;
-        const deleteURL = `${gBoardURL}/delete/${bno}`;
+        const deleteURL = `${gBoardURL}/bno/${bno}`;
         sendAxios('DELETE', deleteURL).then(() => {
           vm.jobComplete(true, false);
         });
@@ -204,6 +205,11 @@ export default {
   created () {
     this.$EventBus.$on('clearForm', () => {
       this.clearForm();
+    });
+    this.$EventBus.$on('updateReplycnt', (bno) => {
+      sendAxios('GET', `${gBoardURL}/page/${gPageNum}`).then(result => {
+        this.boards = result.data;
+      });
     });
   },
   watch: {

@@ -35,7 +35,7 @@
 
 import sendAxios from '../resources/sendAxios.js';
 
-const gBoardURL = 'http://localhost:8080';
+const gSignURL = 'http://localhost:8080/sign';
 
 export default {
   name: 'login',
@@ -65,17 +65,16 @@ export default {
       if (vm.loginForm.uid === '' || vm.loginForm.upw === '') {
         return alert('아이디 및 비밀번호를 입력해주세요.');
       }
-      const signURL = `${gBoardURL}/sign`;
       if (vm.isNotSingUp === false) {
         let charEnough = vm.signForm.uid.length >= 4 && vm.signForm.uid.length <= 12 && vm.signForm.upw.length >= 4 && vm.signForm.upw.length <= 12;
         if (!charEnough) {
           return alert('아이디 및 비밀번호는 4-12자 이내로 입력해주세요.');
         }
-        sendAxios('POST', signURL, vm.signForm).then(result => {
+        sendAxios('POST', gSignURL, vm.signForm).then(result => {
           vm.signUpComplete();
         });
       } else {
-        sendAxios('POST', `${signURL}/login`, vm.loginForm).then(result => {
+        sendAxios('POST', `${gSignURL}/login`, vm.loginForm).then(result => {
           let login = JSON.stringify(result.data);
           if (login === '1') {
             vm.loginSuccess(vm.loginForm.uid);

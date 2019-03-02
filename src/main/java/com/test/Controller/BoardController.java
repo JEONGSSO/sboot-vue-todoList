@@ -20,26 +20,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/")
+@RequestMapping("board")
 public class BoardController {
    
    @Autowired
    private BoardMapper boardMapper;
 
-   @GetMapping("list")
+   @GetMapping("/list")
    public List<BoardVo> getboard() {
       List<BoardVo> boardList = new ArrayList<>();
       boardList = boardMapper.listAll();
       return boardList;
    }
 
-   @GetMapping("count")
+   @GetMapping("/count")
    public int boardPageCount() {
       int totalCount = boardMapper.totalCount();
       return totalCount;
    }
 
-   @GetMapping("page/{perPage}")
+   @GetMapping("/page/{perPage}")
    public List<BoardVo> listPage(@PathVariable int perPage) {
       if (perPage <= 0) {
          perPage = 1;
@@ -50,24 +50,24 @@ public class BoardController {
       return boardListPage;
    }
 
-   @PostMapping("regist")
+   @PostMapping("")
    public BoardVo regist(@RequestBody BoardVo boardvo) {
       boardMapper.regist(boardvo);
       return boardvo;
    }
 
-   @GetMapping("read/{bno}")
+   @GetMapping("/bno/{bno}")
    public BoardVo readBoard(@PathVariable int bno) {
       BoardVo read = boardMapper.readBoard(bno);
       return read;
    }
    
-   @PatchMapping("update")
+   @PatchMapping("/bno/{bno}")
    public void updateBoard(@RequestBody BoardVo boardvo) {
       boardMapper.updateBoard(boardvo);
    }
 
-   @DeleteMapping("delete/{bno}")
+   @DeleteMapping("/bno/{bno}")
    public void deleteBoard(@PathVariable int bno) {
       boardMapper.deleteBoard(bno);
    }

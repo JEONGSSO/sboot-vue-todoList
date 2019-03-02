@@ -19,10 +19,10 @@
         <b-btn size="sm" variant="light" class="mb-2 ml-1 fr" @click="replyDelete(replyForm.bno, replyForm.rno)">❌</b-btn>
       </div>
     </li>
-    <b-form>
-      <b-input required placeholder="댓글 작성" v-model="replyForm.rtext" @submit="replyAdd(replyForm.bno)"/>
-      <!-- <b-btn @click="replyAdd(replyForm.bno)">작성</b-btn>  여기부터 하세용~~~~~~~~~-->
-    </b-form>
+    <div v-show="this.$store.state.isLogin">
+      <input class="col-10" required placeholder="댓글 작성" v-model="replyForm.rtext"/>
+      <b-btn size="sm mb-1" @click="replyAdd(replyForm.bno)">작성</b-btn>
+    </div>
   </div>
 </template>
 
@@ -30,7 +30,7 @@
 
 import sendAxios from '../resources/sendAxios.js';
 
-const gBoardURL = 'http://localhost:8080';
+const gReplyURL = 'http://localhost:8080/reply';
 
 export default {
   name: 'reply',
@@ -55,7 +55,9 @@ export default {
     },
     replyAll (bno) {
       const vm = this;
-      const getReplyAllURL = `${gBoardURL}/reply/${bno}`;
+      const getReplyAllURL = `${gReplyURL}/bno/${bno}`;
+      vm.replyForm.bno = bno;
+      vm.replyForm.rtext = null;
       sendAxios('GET', getReplyAllURL).then(result => {
         if (result.data.length === 0) {
           this.$store.state.nullReply = true;
@@ -67,10 +69,12 @@ export default {
     },
     replyAdd (bno) {
       const vm = this;
-      const ReplyAddURL = `${gBoardURL}/reply/add/${bno}`;
+      const ReplyAddURL = `${gReplyURL}/bno/${bno}`;
       vm.replyForm.replyer = this.$store.state.userId;
       sendAxios('POST', ReplyAddURL, vm.replyForm).then(result => {
-        console.log(result);
+        vm.replyForm.rtext = null;
+        vm.replyAll(bno);
+        this.$EventBus.$emit('updateReplycnt', bno);
       });
     },
     replyEdit (replyform) {
@@ -78,8 +82,7 @@ export default {
         return;
       }
       const vm = this;
-      const ReplyEditURL = `${gBoardURL}/reply/edit`;
-      sendAxios('PATCH', ReplyEditURL, replyform).then(result => {
+      sendAxios('PATCH', gReplyURL, replyform).then(result => {
         vm.replyAll(replyform.bno);
         alert('수정이 완료 되었습니다.');
       });
@@ -89,12 +92,13 @@ export default {
         return;
       }
       const vm = this;
-      const ReplyDelURL = `${gBoardURL}/reply/del/${bno}/${rno}`;
+      const ReplyDelURL = `${gReplyURL}/bno/${bno}/rno/${rno}`;
       sendAxios('DELETE', ReplyDelURL).then(result => {
         vm.replyAll(bno);
+        this.$EventBus.$emit('updateReplycnt', bno);
         alert('삭제가 완료 되었습니다.');
       });
-    },
+    }
   },
   created () {
     this.$EventBus.$on('replyAll', (bno) => {

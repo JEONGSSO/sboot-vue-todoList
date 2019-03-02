@@ -16,7 +16,10 @@ public interface ReplyMapper {
    public List<ReplyVo> getReplyAll(@Param("bno") int bno);
 
    @Insert("insert into reply(bno, rtext, replyer) values( #{bno}, #{rtext}, #{replyer})")
-   public ReplyVo addReply(@Param("bno") int bno, ReplyVo replyvo);
+   public void addReply(ReplyVo replyvo);
+
+   @Update("update board set replycnt = replycnt + #{amt} where bno = #{bno}")
+   public void updateReplycnt(@Param("bno") int bno, @Param("amt") int amt);
 
    @Update("update reply set rtext = #{rtext}, rdate = now(), isEdit = true where bno = #{bno} and rno = #{rno}")
    public void replyEdit(ReplyVo replyvo);

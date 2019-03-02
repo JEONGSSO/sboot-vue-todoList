@@ -43,23 +43,6 @@ public class SignController {
       }
 
    }
-   // @PostMapping("/login")
-   // public int login(@RequestBody SignVo signvo, HttpSession session) throws
-   // Exception {
-   // try {
-   // logger.info("로그인>>>>>>>>>>>={}", signvo);
-   // int login = signMapper.login(signvo);
-   // if (login == 1) {
-
-   // }
-   // return login; //로그인 아이디 비밀번호 일치시 1
-
-   // } catch (Exception e) {
-   // e.printStackTrace();
-   // return 0;
-   // }
-
-   // }
 
    @PostMapping("")
    public ResponseEntity<String> signUp(@RequestBody SignVo signvo) {

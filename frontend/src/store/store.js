@@ -8,8 +8,8 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    userId: '',
-    isLogin: false,
+    userId: '11111',
+    isLogin: true,
     nullReply: true,
     isWrite: true
     // isNotNull: false //clear form, sign

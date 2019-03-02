@@ -21,7 +21,7 @@ public interface BoardMapper {
    @Select("select * from board where bno > 0 order by bno desc, regdata desc limit #{page}, 5")
    public List<BoardVo> listPage(@Param("page") int page);
 
-   @Insert ("insert into board(title, content, writer)values( #{title}, #{content}, #{writer})")
+   @Insert ("insert into board(title, content, writer) values( #{title}, #{content}, #{writer})")
    public void regist(BoardVo boardvo);
 
    @Select("select * from board where bno = #{bno}")
