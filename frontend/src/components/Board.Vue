@@ -41,7 +41,7 @@
     </b-table>
 
     <b-btn v-show="!this.$store.state.isLogin" id="write_btn" class="fl" @click="$EventBus.$emit('loginUserValid')">글 쓰기</b-btn>
-    <b-btn v-show="this.$store.state.isLogin" id="write_btn" class="fl" v-b-modal.modal @click="clearForm()">글 쓰기</b-btn>
+    <b-btn v-show="this.$store.state.isLogin" id="write_btn" class="fl" v-b-modal.modal @click="resetFrom()">글 쓰기</b-btn>
     <span>
       <Paginate
         :pageCount="totalRows"
@@ -58,7 +58,6 @@
         <div class="input-group-append mb-3">
           <span class="input-group-text">제목</span>
           <input type="text" class="form-control" v-model="form.title" v-bind:readonly="isReadOnly"/>
-          <input v-show="false" type="text" class="form-control" v-model="form.writer" readonly/>
           <span v-show="!this.$store.state.isWrite" class="input-group-text">작성자</span>
           <input v-show="!this.$store.state.isWrite" type="text" class="form-control" v-model="form.writer" readonly/>
         </div>
@@ -68,7 +67,7 @@
       <reply/>
 
       <div slot="modal-footer">
-        <b-button class="float-right ml-1" variant="primary" @click="createBorad()" v-show="isNotNull && this.$store.state.isWrite">OK</b-button>
+        <b-button class="float-right ml-1" variant="primary" @click="createBorad()" v-show="!isNull && this.$store.state.isWrite">OK</b-button>
         <div v-show="!this.$store.state.isWrite && form.writer === this.$store.state.userId">
           <b-button class="float-right ml-1" variant="danger" @click="deleteBoard(form.bno)">삭제</b-button>
           <b-button class="float-right" variant="primary" @click="updateBoard(form.bno)">
@@ -115,7 +114,7 @@ export default {
       isSuccess: false,
       isReadOnly: true,
       showModal: true,
-      isNotNull: false
+      isNull: true
     };
   },
   methods: {
@@ -163,11 +162,9 @@ export default {
     },
     deleteBoard (bno) {
       if (!this.$store.state.nullReply) {
-        alert('댓글이 있는 게시물은 삭제할 수 없습니다.');
-        return;
+        return alert('댓글이 있는 게시물은 삭제할 수 없습니다.');
       }
-      let confirmOK = confirm('삭제 하시겠습니까?');
-      if (confirmOK) {
+      if (confirm('삭제 하시겠습니까?')) {
         const vm = this;
         const deleteURL = `${gBoardURL}/bno/${bno}`;
         sendAxios('DELETE', deleteURL).then(() => {
@@ -187,14 +184,14 @@ export default {
         }, 2000);
       }
     },
-    clearForm () {
+    resetFrom () {
       const vm = this;
       vm.form.title = '';
       vm.form.content = '';
       vm.form.writer = this.$store.state.userId;
       this.$store.state.isWrite = true;
       vm.isReadOnly = false;
-      vm.isNotNull = false;
+      vm.isNull = true;
       vm.$refs.modal.show();
     }
   },
@@ -202,10 +199,10 @@ export default {
     this.boardCount();
   },
   created () {
-    this.$EventBus.$on('clearForm', () => {
-      this.clearForm();
+    this.$EventBus.$on('resetFrom', () => {
+      this.resetFrom();
     });
-    this.$EventBus.$on('updateReplycnt', (bno) => {
+    this.$EventBus.$on('updateReplycnt', () => {
       sendAxios('GET', `${gBoardURL}/page/${gPageNum}`).then(result => {
         this.boards = result.data;
       });
@@ -215,11 +212,11 @@ export default {
     form: {
       handler (val) {
         if (val.title && val.content && val.writer) {
-          this.isNotNull = true;
+          this.isNull = false;
         } else {
-          this.isNotNull = false;
+          this.isNull = true;
         }
-        // this.isNotNull = val.title && val.writer && val.content ? true : false;
+        // this.isNull = val.title && val.writer && val.content ? false : true;
       },
       deep: true
     }
@@ -307,7 +304,7 @@ export default {
     <textarea rows="5" cols="70" v-model="form.content"></textarea>
   </div>
   <div slot="modal-footer">
-    <b-button v-show="isNotNull" class="float-right ml-1" variant="primary" @click="createBorad()">OK</b-button>
+    <b-button v-show="isNull" class="float-right ml-1" variant="primary" @click="createBorad()">OK</b-button>
   </div>
 </b-modal>
 <b-modal id="read_board" v-show="showModal">

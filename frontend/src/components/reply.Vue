@@ -4,13 +4,13 @@
     <div v-if="replys.length === 0">
       <p>등록된 댓글이 없습니다.</p>
     </div>
-    <li style="list-style:none;" v-else v-for="(replyForm, index) in replys" :key="index">
+    <li v-else style="list-style:none;" v-for="(replyForm, index) in replys" :key="index">
       <div class="input-group col-10 ml-1">
         <b-input style="display: inline !important" v-bind:readonly="isReplyReadOnly"
             class=" r-15" v-model="replyForm.replyer" />
         <span class="fr ml-6">{{ replyForm.isEdit === true
               ? `Edited ${moment(replyForm.rdate).fromNow()}`
-              : '' + moment(replyForm.rdate).fromNow() }}</span>
+              : moment(replyForm.rdate).fromNow() }}</span>
       </div>
       <div class="input-group col-15">
         <b-input class="mb-2 ml-1"
@@ -74,7 +74,7 @@ export default {
       sendAxios('POST', ReplyAddURL, vm.replyForm).then(result => {
         vm.replyForm.rtext = null;
         vm.replyAll(bno);
-        this.$EventBus.$emit('updateReplycnt', bno);
+        this.$EventBus.$emit('updateReplycnt');
       });
     },
     replyEdit (replyform) {
@@ -95,7 +95,7 @@ export default {
       const ReplyDelURL = `${gReplyURL}/bno/${bno}/rno/${rno}`;
       sendAxios('DELETE', ReplyDelURL).then(result => {
         vm.replyAll(bno);
-        this.$EventBus.$emit('updateReplycnt', bno);
+        this.$EventBus.$emit('updateReplycnt');
         alert('삭제가 완료 되었습니다.');
       });
     }

@@ -126,7 +126,7 @@ export default {
         vm.$refs.sign.show();
         return;
       }
-      this.$EventBus.$emit('clearForm');
+      this.$EventBus.$emit('resetFrom');
     },
     charEnough () {
       const vm = this;
