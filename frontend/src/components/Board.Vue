@@ -14,7 +14,6 @@
     <div class="nav">
       <b-navbar toggleable="lg" type="dark" variant="secondary">
         <b-navbar-brand href="#">Home</b-navbar-brand>
-
         <b-navbar-nav>
           <b-nav-form>
             <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search" />
@@ -41,7 +40,7 @@
       </template>
     </b-table>
 
-    <b-btn v-show="!this.$store.state.isLogin" id="write_btn" class="fl" @click="$EventBus.$emit('userValid')">글 쓰기</b-btn>
+    <b-btn v-show="!this.$store.state.isLogin" id="write_btn" class="fl" @click="$EventBus.$emit('loginUserValid')">글 쓰기</b-btn>
     <b-btn v-show="this.$store.state.isLogin" id="write_btn" class="fl" v-b-modal.modal @click="clearForm()">글 쓰기</b-btn>
     <span>
       <Paginate
@@ -188,7 +187,7 @@ export default {
         }, 2000);
       }
     },
-    clearForm (id) {
+    clearForm () {
       const vm = this;
       vm.form.title = '';
       vm.form.content = '';
