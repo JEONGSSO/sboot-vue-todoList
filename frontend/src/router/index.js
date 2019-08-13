@@ -2,7 +2,8 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import home from '@/components/home';
 import todoPage from '@/components/todoPage';
-import board from '@/components/Board';
+// import board from '@/components/Board';
+import Board from '../components/Board';
 
 Vue.use(Router);
 
@@ -22,7 +23,7 @@ export default new Router({
     {
       path: '/',
       name: 'board',
-      component: board
+      component: Board
     }
   ]
 });
