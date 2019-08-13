@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import home from '@/components/home';
 import todoPage from '@/components/todoPage';
-import board from '@/components/board';
+import board from '@/components/Board';
 
 Vue.use(Router);
 
