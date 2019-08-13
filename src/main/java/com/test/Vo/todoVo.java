@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 // @ToString(exclude={"pw"})
-public class TodoVo {
+public class todoVo {
    private int id;
    private String content;
 

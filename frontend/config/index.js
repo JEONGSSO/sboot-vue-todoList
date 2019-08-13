@@ -51,7 +51,7 @@ module.exports = {
     // Paths 빌드하고 생성할 곳
     assetsRoot: path.resolve(__dirname, '../../src/main/resources/static'),
     // assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
+    assetsSubDirectory: '',
     assetsPublicPath: '/',
 
     /**

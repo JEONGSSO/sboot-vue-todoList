@@ -53,6 +53,11 @@
       </Paginate>
     </span>
 
+    <button @click="$store.dispatch({
+      type: 'increment',
+      payload: 3
+    })">sdsd</button>
+
     <b-modal id="modal" v-show="showModal" ref="modal">
       <div class="input-group input-group-sm">
         <div class="input-group-append mb-3">

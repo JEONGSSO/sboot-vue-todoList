@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.Null;
 
-import com.test.Vo.TodoVo;
+import com.test.Vo.todoVo;
 import com.test.mappers.TodoMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +29,14 @@ public class TodoController {
    private TodoMapper todoMapper;
    
    @GetMapping("list")
-   public List<TodoVo> todoList() {
-      List<TodoVo> todolist = new ArrayList<>();
+   public List<todoVo> todoList() {
+      List<todoVo> todolist = new ArrayList<>();
       todolist = todoMapper.listAll();
       return todolist;
    }
 
 	@PostMapping("regist")
-	public ResponseEntity<TodoVo> regist(@RequestBody TodoVo todo) {
+	public ResponseEntity<todoVo> regist(@RequestBody todoVo todo) {
       try {
          // System.out.println(todo);
          todoMapper.regist(todo);

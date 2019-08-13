@@ -58,9 +58,7 @@ export default {
   },
   methods: {
     logout () {
-      this.$store.state.isLogin = false;
-      this.$store.state.userId = '';
-      alert('로그아웃 되었습니다!');
+      this.$store.commit('logout');
     },
     sign () {
       const vm = this;
@@ -112,13 +110,17 @@ export default {
     },
     loginSuccess (userid) {
       this.failLogin = false;
-      this.$store.state.isLogin = true;
-      this.$store.state.userId = userid;
+      this.$store.commit('login', userid);
+      // this.$store.commit({
+      //   type: 'login',
+      //   payload: userid
+      // });
       this.$refs.sign.hide();
     },
     loginUserValid () {
       const vm = this;
-      let userid = this.$store.state.userId;
+      let userid = this.$store.getters.userId;
+      console.log(userid);
       vm.clearLogin();
       if (userid === '') {
         vm.isSignUp = false;
